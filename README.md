@@ -114,7 +114,8 @@ entidades. Conteos verificados:
 | Inscripción | 9 |
 
 La base también contiene cuentas de acceso a Django Admin. El usuario de
-demostración es `Administrador` y su contraseña es Adm12345678.
+demostración es `Administrador`. Por seguridad, comparte la contraseña por un
+medio privado y no la publiques en este README ni en el repositorio.
 
 ## Instalación y ejecución en Windows
 
