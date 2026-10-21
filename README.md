@@ -7,6 +7,15 @@ administrativo de Django.
 
 ## Tecnologías y versiones
 
+<p align="left">
+  <img src="https://img.shields.io/badge/Python-3.13-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python 3.13">
+  <img src="https://img.shields.io/badge/Django-6.1.2-092E20?style=for-the-badge&logo=django&logoColor=white" alt="Django 6.1.2">
+  <img src="https://img.shields.io/badge/SQLite-Database-003B57?style=for-the-badge&logo=sqlite&logoColor=white" alt="SQLite">
+  <img src="https://img.shields.io/badge/HTML5-Frontend-E34F26?style=for-the-badge&logo=html5&logoColor=white" alt="HTML5">
+  <img src="https://img.shields.io/badge/CSS3-Styles-1572B6?style=for-the-badge&logo=css3&logoColor=white" alt="CSS3">
+  <img src="https://img.shields.io/badge/JavaScript-Frontend-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black" alt="JavaScript">
+</p>
+
 - **Python:** 3.13.x
 - **Django:** 6.1.2
 - **Base de datos:** SQLite
@@ -114,8 +123,8 @@ demostración es `Administrador` y la contraseña es Adm12345678.
 Requiere Python 3.13 y Git. Desde PowerShell:
 
 ```powershell
-git clone https://github.com/<usuario>/sistema-gimnasio.git
-Set-Location sistema-gimnasio
+git clone https://github.com/SebasOfEek/administrador-gimnasios.git
+Set-Location administrador-gimnasios
 py -3.13 -m venv venv
 .\venv\Scripts\Activate.ps1
 python -m pip install -r requirements.txt
@@ -155,21 +164,3 @@ python manage.py test socios.tests --verbosity 1
 
 Las pruebas cubren navegación, creación, búsqueda y eliminación desde la
 interfaz gráfica. Las migraciones se encuentran aplicadas en la base incluida.
-
-## Publicación y colaboradores en GitHub
-
-1. Crea un repositorio **público** con un nombre como `sistema-gimnasio`.
-2. No inicialices el repositorio remoto con otro README si vas a subir este
-   proyecto completo.
-3. Sube el código y comprueba que aparezcan `db.sqlite3`, `requirements.txt`,
-   las carpetas `migrations/`, `docs/` y este `README.md`.
-4. Confirma que `venv/` y `__pycache__/` no aparecen en Git; están excluidos
-   por [`.gitignore`](./.gitignore).
-5. En el repositorio, abre **Settings → Collaborators → Add people** y agrega
-   a cada integrante con su usuario de GitHub. Acepten las invitaciones.
-6. Comparte la contraseña de demostración con el profesor por un medio privado,
-   no mediante este README ni un commit público.
-
-La carpeta de trabajo local todavía no está inicializada como repositorio Git;
-la creación del repositorio remoto y la invitación de colaboradores deben
-completarse desde tu cuenta de GitHub.
