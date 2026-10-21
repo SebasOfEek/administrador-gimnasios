@@ -180,9 +180,8 @@ Para detener el servidor, vuelve a PowerShell y presiona `Ctrl+C`. Para
 iniciarlo en otra ocasión, abre PowerShell, entra a la carpeta del proyecto y
 ejecuta nuevamente el comando `runserver`.
 
-La base incluida tiene el usuario administrativo `Administrador`. La contraseña
-de demostración se comparte por separado; no se publica en este README. Si
-creaste una base nueva o necesitas otra cuenta administradora, ejecuta:
+La base incluida tiene el usuario administrativo `Administrador` y la contraseña
+que es Adm12345678.
 
 ```powershell
 .\venv\Scripts\python.exe manage.py createsuperuser
