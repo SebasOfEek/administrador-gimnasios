@@ -119,28 +119,95 @@ medio privado y no la publiques en este README ni en el repositorio.
 
 ## Instalación y ejecución en Windows
 
-Requiere Python 3.13 y Git. Desde PowerShell:
+### Requisitos previos
+
+Antes de comenzar, instala:
+
+1. **Python 3.13.x** desde [python.org](https://www.python.org/downloads/).
+   Durante la instalación, activa **Add python.exe to PATH**.
+2. **Git for Windows** desde [git-scm.com](https://git-scm.com/download/win).
+3. **PowerShell**, incluido en Windows.
+
+Abre una nueva ventana de PowerShell y comprueba que Python y Git estén
+disponibles:
+
+```powershell
+py -3.13 --version
+git --version
+```
+
+Python debe mostrar una versión `3.13.x`. Si `py` no se reconoce o no encuentra
+Python 3.13, vuelve a instalar Python marcando la opción para agregarlo al PATH
+y reinicia PowerShell.
+
+### Descargar e instalar el proyecto
+
+Copia y ejecuta estos comandos **uno por uno** en PowerShell:
 
 ```powershell
 git clone https://github.com/SebasOfEek/administrador-gimnasios.git
 Set-Location administrador-gimnasios
 py -3.13 -m venv venv
-.\venv\Scripts\Activate.ps1
-python -m pip install -r requirements.txt
-python manage.py migrate
-python manage.py runserver
+.\venv\Scripts\python.exe -m pip install --upgrade pip
+.\venv\Scripts\python.exe -m pip install -r requirements.txt
+.\venv\Scripts\python.exe manage.py migrate
 ```
 
-Abre <http://127.0.0.1:8000/> para el panel gráfico y
-<http://127.0.0.1:8000/admin/> para Django Admin. Inicia sesión con una cuenta
-de personal. Si se necesita crear otra cuenta administradora en esta base:
+Estos pasos crean un entorno virtual propio e instalan las versiones indicadas
+en `requirements.txt`. Se invoca Python directamente desde `venv`, por lo que
+no hace falta activar el entorno ni cambiar la política de ejecución de
+PowerShell.
+
+La base de datos `db.sqlite3` con los datos de prueba está incluida en el
+repositorio. Ejecutar `migrate` aplica las migraciones pendientes sin borrar
+esos registros. No elimines ni reemplaces `db.sqlite3` si necesitas conservar
+la base de demostración.
+
+### Iniciar el servidor
+
+Desde la carpeta `administrador-gimnasios`, ejecuta:
 
 ```powershell
-python manage.py createsuperuser
+.\venv\Scripts\python.exe manage.py runserver
 ```
 
+Mientras esa ventana siga abierta, visita:
+
+- Panel gráfico: <http://127.0.0.1:8000/>
+- Administración de Django: <http://127.0.0.1:8000/admin/>
+
+Para detener el servidor, vuelve a PowerShell y presiona `Ctrl+C`. Para
+iniciarlo en otra ocasión, abre PowerShell, entra a la carpeta del proyecto y
+ejecuta nuevamente el comando `runserver`.
+
+La base incluida tiene el usuario administrativo `Administrador`. La contraseña
+de demostración se comparte por separado; no se publica en este README. Si
+creaste una base nueva o necesitas otra cuenta administradora, ejecuta:
+
+```powershell
+.\venv\Scripts\python.exe manage.py createsuperuser
+```
+
+### Solución de problemas comunes
+
+- **`py` no se reconoce:** instala Python 3.13 y marca **Add python.exe to
+  PATH**; después cierra y vuelve a abrir PowerShell.
+- **`git` no se reconoce:** instala Git for Windows y vuelve a abrir
+  PowerShell.
+- **No encuentra `manage.py` o `requirements.txt`:** comprueba que estés en la
+  carpeta del proyecto con `Get-Location`. Si acabas de clonar el repositorio,
+  entra con `Set-Location administrador-gimnasios`.
+- **No encuentra `venv\Scripts\python.exe`:** desde la carpeta del proyecto,
+  crea el entorno con `py -3.13 -m venv venv` y vuelve a instalar
+  `requirements.txt`.
+- **Error al instalar dependencias:** confirma que tienes conexión a Internet
+  y ejecuta otra vez el comando `pip install -r requirements.txt`.
+- **El puerto 8000 ya está ocupado:** inicia Django en otro puerto, por
+  ejemplo `.\venv\Scripts\python.exe manage.py runserver 8001`, y abre
+  <http://127.0.0.1:8001/>.
+
 El entorno virtual no se incluye en Git; cada integrante debe crearlo e
-instalar las dependencias con `requirements.txt`.
+instalar las dependencias siguiendo estos pasos.
 
 ## Diagramas y documentos
 
