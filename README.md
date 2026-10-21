@@ -11,9 +11,6 @@ administrativo de Django.
   <img src="https://img.shields.io/badge/Python-3.13-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python 3.13">
   <img src="https://img.shields.io/badge/Django-6.1.2-092E20?style=for-the-badge&logo=django&logoColor=white" alt="Django 6.1.2">
   <img src="https://img.shields.io/badge/SQLite-Database-003B57?style=for-the-badge&logo=sqlite&logoColor=white" alt="SQLite">
-  <img src="https://img.shields.io/badge/HTML5-Frontend-E34F26?style=for-the-badge&logo=html5&logoColor=white" alt="HTML5">
-  <img src="https://img.shields.io/badge/CSS3-Styles-1572B6?style=for-the-badge&logo=css3&logoColor=white" alt="CSS3">
-  <img src="https://img.shields.io/badge/JavaScript-Frontend-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black" alt="JavaScript">
 </p>
 
 - **Python:** 3.13.x
@@ -22,7 +19,8 @@ administrativo de Django.
 - **Interfaz:** Django Templates, HTML, CSS y JavaScript
 
 La configuración está pensada para desarrollo y demostración académica local;
-no despliegues esta configuración tal cual en un servidor público.
+no despliegues esta configuración tal cual en un servidor público. La clave
+incluida en `settings.py` es solo para desarrollo local.
 
 Las dependencias fijadas del entorno están en [`requirements.txt`](./requirements.txt).
 Si se actualizan, se pueden regenerar desde el entorno virtual activo con:
@@ -116,7 +114,7 @@ entidades. Conteos verificados:
 | Inscripción | 9 |
 
 La base también contiene cuentas de acceso a Django Admin. El usuario de
-demostración es `Administrador` y la contraseña es Adm12345678.
+demostración es `Administrador` y su contraseña es Adm12345678.
 
 ## Instalación y ejecución en Windows
 
@@ -128,7 +126,6 @@ Set-Location administrador-gimnasios
 py -3.13 -m venv venv
 .\venv\Scripts\Activate.ps1
 python -m pip install -r requirements.txt
-$env:DJANGO_SECRET_KEY = python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
 python manage.py migrate
 python manage.py runserver
 ```
@@ -141,10 +138,6 @@ de personal. Si se necesita crear otra cuenta administradora en esta base:
 python manage.py createsuperuser
 ```
 
-La variable `DJANGO_SECRET_KEY` se genera para la sesión actual de PowerShell y
-no se guarda en el repositorio. Si abres una terminal nueva, vuelve a definirla
-antes de ejecutar comandos Django. No publiques claves ni archivos `.env`.
-
 El entorno virtual no se incluye en Git; cada integrante debe crearlo e
 instalar las dependencias con `requirements.txt`.
 
@@ -152,7 +145,6 @@ instalar las dependencias con `requirements.txt`.
 
 - [Diagrama de actores](./docs/diagrama_actores.pdf)
 - [Diagrama entidad-relación](./docs/diagrama_er.pdf)
-- [Enunciado de la entrega](./docs/Entregable%20segundo%20corte.pdf)
 
 ## Verificaciones realizadas
 
