@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+
+{% block titulo %}Gimnasio - Inicio{% endblock %}
+
+{% block contenido %}
+
+<header class="encabezado">
+  <div>
+    <h1>Inicio</h1>
+    <p>Resumen del gimnasio · {{ hoy|date:"l j \d\e F \d\e Y" }}</p>
+  </div>
+  <div class="acciones">
+    <div class="selector" role="group" aria-label="Elegir panel">
+      <a class="activo" href="{% url 'inicio' %}">Panel web</a>
+      <a href="{% url 'admin:index' %}">Admin de Django</a>
+    </div>
+  </div>
+</header>
+
+<section class="fila" aria-label="Indicadores">
+  <div class="tarjeta kpi">
+    <div class="kpi-etiqueta">Socios registrados</div>
+    <div class="kpi-valor">{{ total_socios }}</div>
+    <div class="kpi-nota">en el sistema</div>
+  </div>
+  <div class="tarjeta kpi aviso">
+    <div class="kpi-etiqueta">Membresías vigentes</div>
+    <div class="kpi-valor">{{ total_vigentes }}</div>
+    <div class="kpi-nota">{{ por_vencer }} vencen en 15 días</div>
+  </div>
+  <div class="tarjeta kpi">
+    <div class="kpi-etiqueta">Clases grupales</div>
+    <div class="kpi-valor">{{ total_clases }}</div>
+    <div class="kpi-nota">con {{ total_entrenadores }} entrenadores</div>
+  </div>
+  <div class="tarjeta kpi oscuro">
+    <div class="kpi-etiqueta">Inscripciones</div>
+    <div class="kpi-valor">{{ total_inscripciones }}</div>
+    <div class="kpi-nota">socios en clases</div>
+  </div>
+</section>
+
+<section class="fila">
+  <div class="tarjeta grande">
+    <div class="tarjeta-cab">
+      <h2>Próximos vencimientos</h2>
+      <a href="{% url 'catalogo' 'membresias' %}">Ver todas</a>
+    </div>
+    <div class="tabla-wrap">
+      <table class="t">
+        <thead>
+          <tr><th>Socio</th><th>Plan</th><th>Vence</th><th>Estado</th></tr>
+        </thead>
+        <tbody>
+          {% for m in proximas %}
+          <tr>
+            <td class="fuerte">{{ m.socio }}</td>
+            <td>{{ m.plan }}</td>
+            <td>{{ m.fin|date:"d M Y" }}</td>
+            <td><span class="chip {{ m.estado }}">{{ m.texto }}</span></td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="4" class="vacio">Aún no hay membresías registradas.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="tarjeta chica">
+    <h2>Clases de la semana</h2>
+    <div class="lista-clases">
+      {% for c in clases %}
+      <div>
+        <div class="clase-cab">
+          <span class="clase-nombre">{{ c.cla_nombre }} · {{ c.get_cla_dia_display|lower }} {{ c.cla_hora|time:"H:i" }}</span>
+          <span class="clase-cupo">{{ c.inscritos }} / {{ c.cla_cupo }}</span>
+        </div>
+        <div class="barra"><span style="width: {{ c.porcentaje }}%"></span></div>
+        <div class="clase-extra">{{ c.fk_ent.ent_nombre }} {{ c.fk_ent.ent_apellido }}</div>
+      </div>
+      {% empty %}
+      <div class="vacio">Aún no hay clases registradas.</div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="fila">
+  <div class="tarjeta grande">
+    <h2>Accesos rápidos</h2>
+    <div class="accesos">
+      <a class="acceso" href="{% url 'catalogo' 'socios' %}" data-modal-open="modal-socios">
+        <strong>Registrar socio</strong><span>Datos personales y contacto</span>
+      </a>
+      <a class="acceso" href="{% url 'catalogo' 'membresias' %}" data-modal-open="modal-membresias">
+        <strong>Registrar membresía</strong><span>Asignar un plan a un socio</span>
+      </a>
+      <a class="acceso" href="{% url 'catalogo' 'inscripciones' %}" data-modal-open="modal-inscripciones">
+        <strong>Inscribir en clase</strong><span>Un socio en una clase</span>
+      </a>
+      <a class="acceso" href="{% url 'catalogo' 'clases' %}" data-modal-open="modal-clases">
+        <strong>Nueva clase</strong><span>Día, hora, cupo y entrenador</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="tarjeta chica">
+    <h2>Planes disponibles</h2>
+    <div style="margin-top: 12px">
+      {% for p in planes %}
+      <div class="plan-item">
+        <div>
+          <div class="plan-nombre">{{ p.pla_nombre }}</div>
+          <div class="plan-dias">{{ p.pla_dias }} días</div>
+        </div>
+        <div class="plan-precio">${{ p.pla_precio|floatformat:"0g" }}</div>
+      </div>
+      {% empty %}
+      <div class="vacio">Aún no hay planes registrados.</div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{% for item in formularios_rapidos %}
+  {% include 'modal_formulario.html' with modal_id=item.modal_id titulo_formulario=item.titulo formulario=item.formulario formulario_url=item.modulo origen='inicio' modal_abierto=modal_abierto %}
+{% endfor %}
+
+{% endblock %}

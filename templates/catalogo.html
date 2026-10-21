@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block titulo %}Gimnasio - {{ titulo }}{% endblock %}
+
+{% block contenido %}
+<header class="encabezado">
+  <div>
+    <h1>{{ titulo }}</h1>
+    <p>{{ descripcion }}</p>
+  </div>
+  <div class="acciones">
+    <span class="catalogo-total">{{ total }} registro{{ total|pluralize:"s" }}</span>
+    <button class="btn-lima" type="button" data-modal-open="{{ modal_id }}">+ {{ crear_texto }}</button>
+  </div>
+</header>
+
+<section class="tarjeta catalogo">
+  <form class="busqueda" method="get" role="search">
+    <label class="solo-lectores" for="buscar-registros">Buscar {{ titulo|lower }}</label>
+    <input
+      id="buscar-registros"
+      type="search"
+      name="q"
+      value="{{ termino }}"
+      placeholder="Buscar {{ titulo|lower }}..."
+    >
+    <button class="btn-buscar" type="submit">Buscar</button>
+    {% if termino %}
+    <a class="limpiar-busqueda" href="{% url 'catalogo' modulo %}">Limpiar</a>
+    {% endif %}
+  </form>
+
+  <div class="tabla-wrap">
+    <table class="t">
+      <thead>
+        <tr>
+          {% for columna in columnas %}<th scope="col">{{ columna }}</th>{% endfor %}
+          <th scope="col">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for fila in filas %}
+        <tr>
+          {% for valor in fila.valores %}<td>{{ valor }}</td>{% endfor %}
+          <td class="acciones-registro">
+            <form method="post" action="{% url 'eliminar_registro' modulo fila.id %}" data-confirm="{{ fila.confirmacion }}">
+              {% csrf_token %}
+              <input type="hidden" name="q" value="{{ termino }}">
+              <input type="hidden" name="page" value="{{ pagina.number }}">
+              <button class="btn-eliminar" type="submit">Eliminar</button>
+            </form>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td class="vacio" colspan="{{ columnas|length|add:1 }}">
+            {% if termino %}No se encontraron resultados para "{{ termino }}".{% else %}Aún no hay registros en esta sección.{% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if pagina.has_other_pages %}
+  <nav class="paginacion" aria-label="Paginación">
+    <span>Página {{ pagina.number }} de {{ pagina.paginator.num_pages }}</span>
+    {% if pagina.has_previous %}
+    <a href="?q={{ termino|urlencode }}&amp;page={{ pagina.previous_page_number }}">Anterior</a>
+    {% endif %}
+    {% if pagina.has_next %}
+    <a href="?q={{ termino|urlencode }}&amp;page={{ pagina.next_page_number }}">Siguiente</a>
+    {% endif %}
+  </nav>
+  {% endif %}
+</section>
+
+{% include 'modal_formulario.html' with modal_id=modal_id titulo_formulario=crear_texto formulario=formulario formulario_url=formulario_url origen='catalogo' modal_abierto=modal_abierto %}
+{% endblock %}

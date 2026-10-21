@@ -1,0 +1,117 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titulo %}Gimnasio{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/estilos.css' %}">
+</head>
+<body>
+<div class="layout">
+
+  <aside class="sidebar">
+    <div class="marca">
+      <div class="marca-logo">G</div>
+      <div class="marca-nombre">Gimnasio</div>
+    </div>
+
+    <nav class="nav" aria-label="Módulos">
+      <div class="nav-titulo">NAVEGACIÓN</div>
+
+      <a class="nav-item {% if request.path == '/' %}activo{% endif %}" href="{% url 'inicio' %}">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-8 9 8v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>
+        Inicio
+      </a>
+      <a class="nav-item {% if request.path == '/catalogo/socios/' %}activo{% endif %}" href="{% url 'catalogo' 'socios' %}">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><path d="M16 5.2a3.5 3.5 0 0 1 0 5.6M18 14.4c2 .8 3.5 2.6 3.5 5.6"/></svg>
+        Socios
+      </a>
+      <a class="nav-item {% if request.path == '/catalogo/planes/' %}activo{% endif %}" href="{% url 'catalogo' 'planes' %}">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/></svg>
+        Planes
+      </a>
+      <a class="nav-item {% if request.path == '/catalogo/membresias/' %}activo{% endif %}" href="{% url 'catalogo' 'membresias' %}">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="11" r="2"/><path d="M6 17c.5-2 5.5-2 6 0M14 9h4M14 13h4"/></svg>
+        Membresías
+      </a>
+      <a class="nav-item {% if request.path == '/catalogo/entrenadores/' %}activo{% endif %}" href="{% url 'catalogo' 'entrenadores' %}">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-4 3.1-6.5 7-6.5s7 2.5 7 6.5"/></svg>
+        Entrenadores
+      </a>
+      <a class="nav-item {% if request.path == '/catalogo/clases/' %}activo{% endif %}" href="{% url 'catalogo' 'clases' %}">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+        Clases
+      </a>
+      <a class="nav-item {% if request.path == '/catalogo/inscripciones/' %}activo{% endif %}" href="{% url 'catalogo' 'inscripciones' %}">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11M3.5 6l1.5 1.5L7.5 5M3.5 12l1.5 1.5L7.5 11M3.5 18l1.5 1.5L7.5 17"/></svg>
+        Inscripciones
+      </a>
+      <a class="nav-item {% if request.path == '/catalogo/usuarios/' %}activo{% endif %}" href="{% url 'catalogo' 'usuarios' %}">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.2 7.8-8 9-4.8-1.2-8-4.5-8-9V6z"/></svg>
+        Usuarios
+      </a>
+    </nav>
+
+    <nav class="nav" aria-label="Administración">
+      <div class="nav-titulo">ADMINISTRACIÓN</div>
+      <a class="nav-item" href="{% url 'admin:index' %}">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>
+        Panel de Django
+      </a>
+    </nav>
+
+    <div class="usuario">
+      <div class="usuario-avatar">{{ request.user.username|slice:":2"|upper }}</div>
+      <div>
+        <span class="usuario-nombre">{{ request.user.username }}</span>
+        <span class="usuario-rol">{% if request.user.is_superuser %}Superusuario{% else %}Personal{% endif %}</span>
+      </div>
+    </div>
+  </aside>
+
+  <main class="contenido">
+    {% if messages %}
+    <div class="mensajes" aria-live="polite">
+      {% for message in messages %}
+      <div class="mensaje {{ message.tags }}">{{ message }}</div>
+      {% endfor %}
+    </div>
+    {% endif %}
+    {% block contenido %}{% endblock %}
+  </main>
+
+</div>
+<script>
+  document.addEventListener('click', (event) => {
+    const openButton = event.target.closest('[data-modal-open]');
+    if (openButton) {
+      event.preventDefault();
+      const modal = document.getElementById(openButton.dataset.modalOpen);
+      if (modal) modal.showModal();
+    }
+
+    const closeButton = event.target.closest('[data-modal-close]');
+    if (closeButton) closeButton.closest('dialog').close();
+
+    if (event.target instanceof HTMLDialogElement && event.target.open) {
+      const bounds = event.target.getBoundingClientRect();
+      if (
+        event.clientX < bounds.left || event.clientX > bounds.right ||
+        event.clientY < bounds.top || event.clientY > bounds.bottom
+      ) event.target.close();
+    }
+  });
+
+  document.addEventListener('submit', (event) => {
+    const form = event.target.closest('form[data-confirm]');
+    if (form && !window.confirm(form.dataset.confirm)) event.preventDefault();
+  });
+
+  const modalAbierto = document.querySelector('[data-modal-inicial]');
+  if (modalAbierto) modalAbierto.showModal();
+</script>
+</body>
+</html>
