@@ -3,128 +3,177 @@
 {% block titulo %}Gimnasio - Inicio{% endblock %}
 
 {% block contenido %}
-
-<header class="encabezado">
-  <div>
-    <h1>Inicio</h1>
-    <p>Resumen del gimnasio · {{ hoy|date:"l j \d\e F \d\e Y" }}</p>
-  </div>
-  <div class="acciones">
-    <div class="selector" role="group" aria-label="Elegir panel">
-      <a class="activo" href="{% url 'inicio' %}">Panel web</a>
-      <a href="{% url 'admin:index' %}">Admin de Django</a>
+<div class="dashboard">
+  <header class="encabezado dashboard-encabezado">
+    <div>
+      <span class="dashboard-saludo">PANEL DE CONTROL</span>
+      <h1>Resumen del gimnasio</h1>
+      <p>{{ hoy|date:"l j \d\e F \d\e Y" }}</p>
     </div>
-  </div>
-</header>
-
-<section class="fila" aria-label="Indicadores">
-  <div class="tarjeta kpi">
-    <div class="kpi-etiqueta">Socios registrados</div>
-    <div class="kpi-valor">{{ total_socios }}</div>
-    <div class="kpi-nota">en el sistema</div>
-  </div>
-  <div class="tarjeta kpi aviso">
-    <div class="kpi-etiqueta">Membresías vigentes</div>
-    <div class="kpi-valor">{{ total_vigentes }}</div>
-    <div class="kpi-nota">{{ por_vencer }} vencen en 15 días</div>
-  </div>
-  <div class="tarjeta kpi">
-    <div class="kpi-etiqueta">Clases grupales</div>
-    <div class="kpi-valor">{{ total_clases }}</div>
-    <div class="kpi-nota">con {{ total_entrenadores }} entrenadores</div>
-  </div>
-  <div class="tarjeta kpi oscuro">
-    <div class="kpi-etiqueta">Inscripciones</div>
-    <div class="kpi-valor">{{ total_inscripciones }}</div>
-    <div class="kpi-nota">socios en clases</div>
-  </div>
-</section>
-
-<section class="fila">
-  <div class="tarjeta grande">
-    <div class="tarjeta-cab">
-      <h2>Próximos vencimientos</h2>
-      <a href="{% url 'catalogo' 'membresias' %}">Ver todas</a>
-    </div>
-    <div class="tabla-wrap">
-      <table class="t">
-        <thead>
-          <tr><th>Socio</th><th>Plan</th><th>Vence</th><th>Estado</th></tr>
-        </thead>
-        <tbody>
-          {% for m in proximas %}
-          <tr>
-            <td class="fuerte">{{ m.socio }}</td>
-            <td>{{ m.plan }}</td>
-            <td>{{ m.fin|date:"d M Y" }}</td>
-            <td><span class="chip {{ m.estado }}">{{ m.texto }}</span></td>
-          </tr>
-          {% empty %}
-          <tr><td colspan="4" class="vacio">Aún no hay membresías registradas.</td></tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <div class="tarjeta chica">
-    <h2>Clases de la semana</h2>
-    <div class="lista-clases">
-      {% for c in clases %}
-      <div>
-        <div class="clase-cab">
-          <span class="clase-nombre">{{ c.cla_nombre }} · {{ c.get_cla_dia_display|lower }} {{ c.cla_hora|time:"H:i" }}</span>
-          <span class="clase-cupo">{{ c.inscritos }} / {{ c.cla_cupo }}</span>
-        </div>
-        <div class="barra"><span style="width: {{ c.porcentaje }}%"></span></div>
-        <div class="clase-extra">{{ c.fk_ent.ent_nombre }} {{ c.fk_ent.ent_apellido }}</div>
+    <div class="acciones">
+      <div class="selector" role="group" aria-label="Elegir panel">
+        <a class="activo" href="{% url 'inicio' %}">Panel web</a>
+        <a href="{% url 'admin:index' %}">Admin de Django</a>
       </div>
-      {% empty %}
-      <div class="vacio">Aún no hay clases registradas.</div>
-      {% endfor %}
     </div>
-  </div>
-</section>
+  </header>
 
-<section class="fila">
-  <div class="tarjeta grande">
-    <h2>Accesos rápidos</h2>
-    <div class="accesos">
-      <a class="acceso" href="{% url 'catalogo' 'socios' %}" data-modal-open="modal-socios">
-        <strong>Registrar socio</strong><span>Datos personales y contacto</span>
-      </a>
-      <a class="acceso" href="{% url 'catalogo' 'membresias' %}" data-modal-open="modal-membresias">
-        <strong>Registrar membresía</strong><span>Asignar un plan a un socio</span>
-      </a>
-      <a class="acceso" href="{% url 'catalogo' 'inscripciones' %}" data-modal-open="modal-inscripciones">
-        <strong>Inscribir en clase</strong><span>Un socio en una clase</span>
-      </a>
-      <a class="acceso" href="{% url 'catalogo' 'clases' %}" data-modal-open="modal-clases">
-        <strong>Nueva clase</strong><span>Día, hora, cupo y entrenador</span>
-      </a>
-    </div>
-  </div>
+  <section class="dashboard-kpis" aria-label="Indicadores del gimnasio">
+    <a class="tarjeta kpi" href="{% url 'catalogo' 'socios' %}">
+      <span class="kpi-icono" aria-hidden="true">S</span>
+      <span class="kpi-etiqueta">Socios registrados</span>
+      <strong class="kpi-valor">{{ total_socios }}</strong>
+      <span class="kpi-nota">Total de socios</span>
+    </a>
+    <a class="tarjeta kpi aviso" href="{% url 'catalogo' 'membresias' %}">
+      <span class="kpi-icono" aria-hidden="true">M</span>
+      <span class="kpi-etiqueta">Membresías vigentes</span>
+      <strong class="kpi-valor">{{ total_vigentes }}</strong>
+      <span class="kpi-nota">{{ por_vencer }} vencen en los próximos 15 días</span>
+    </a>
+    <a class="tarjeta kpi" href="{% url 'catalogo' 'clases' %}">
+      <span class="kpi-icono" aria-hidden="true">C</span>
+      <span class="kpi-etiqueta">Clases grupales</span>
+      <strong class="kpi-valor">{{ total_clases }}</strong>
+      <span class="kpi-nota">{{ total_entrenadores }} entrenadores registrados</span>
+    </a>
+    <a class="tarjeta kpi oscuro" href="{% url 'catalogo' 'inscripciones' %}">
+      <span class="kpi-icono" aria-hidden="true">I</span>
+      <span class="kpi-etiqueta">Inscripciones</span>
+      <strong class="kpi-valor">{{ total_inscripciones }}</strong>
+      <span class="kpi-nota">Socios inscritos en clases</span>
+    </a>
+  </section>
 
-  <div class="tarjeta chica">
-    <h2>Planes disponibles</h2>
-    <div style="margin-top: 12px">
-      {% for p in planes %}
-      <div class="plan-item">
+  <section class="dashboard-graficas" aria-label="Gráficas del gimnasio">
+    <article class="tarjeta grafica-card">
+      <div class="tarjeta-cab">
         <div>
-          <div class="plan-nombre">{{ p.pla_nombre }}</div>
-          <div class="plan-dias">{{ p.pla_dias }} días</div>
+          <span class="dashboard-saludo">CRECIMIENTO</span>
+          <h2>Altas de membresía</h2>
         </div>
-        <div class="plan-precio">${{ p.pla_precio|floatformat:"0g" }}</div>
+        <span class="grafica-periodo">Últimos 6 meses</span>
       </div>
-      {% empty %}
-      <div class="vacio">Aún no hay planes registrados.</div>
-      {% endfor %}
+      <div class="grafica-barras">
+        {% for mes in altas_membresias %}
+        <div class="grafica-columna" role="img" aria-label="{{ mes.mes }}: {{ mes.total }} membresías">
+          <span class="grafica-valor">{{ mes.total }}</span>
+          <div class="grafica-pista"><span class="grafica-barra" style="height: {{ mes.altura }}%"></span></div>
+          <span class="grafica-etiqueta">{{ mes.mes }}</span>
+        </div>
+        {% endfor %}
+      </div>
+    </article>
+
+    <article class="tarjeta grafica-card">
+      <div class="tarjeta-cab">
+        <div>
+          <span class="dashboard-saludo">CAPACIDAD</span>
+          <h2>Ocupación por clase</h2>
+        </div>
+        <a href="{% url 'catalogo' 'clases' %}">Ver clases</a>
+      </div>
+      <div class="grafica-ocupacion">
+        {% for clase in ocupacion_clases %}
+        <div class="ocupacion-item">
+          <div class="ocupacion-cab">
+            <span class="ocupacion-nombre">{{ clase.cla_nombre }}</span>
+            <span class="ocupacion-cifra">{{ clase.inscritos }} / {{ clase.cla_cupo }}</span>
+          </div>
+          <div
+            class="ocupacion-pista"
+            role="img"
+            aria-label="{{ clase.porcentaje }} por ciento de ocupación"
+          ><span class="ocupacion-barra" style="width: {{ clase.porcentaje }}%"></span></div>
+        </div>
+        {% empty %}
+        <p class="vacio">Aún no hay clases registradas.</p>
+        {% endfor %}
+      </div>
+    </article>
+  </section>
+
+  <section class="dashboard-inferior" aria-label="Actividad y accesos">
+    <article class="tarjeta vencimientos-card">
+      <div class="tarjeta-cab">
+        <div>
+          <span class="dashboard-saludo">SEGUIMIENTO</span>
+          <h2>Próximos vencimientos</h2>
+        </div>
+        <a href="{% url 'catalogo' 'membresias' %}">Ver todas</a>
+      </div>
+      <div class="tabla-wrap">
+        <table class="t">
+          <thead>
+            <tr><th>Socio</th><th>Plan</th><th>Vence</th><th>Estado</th></tr>
+          </thead>
+          <tbody>
+            {% for membresia in proximas %}
+            <tr>
+              <td class="fuerte">{{ membresia.socio }}</td>
+              <td>{{ membresia.plan }}</td>
+              <td>{{ membresia.fin|date:"d M Y" }}</td>
+              <td><span class="chip {{ membresia.estado }}">{{ membresia.texto }}</span></td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" class="vacio">No hay vencimientos próximos.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </article>
+
+    <div class="dashboard-lateral">
+      <article class="tarjeta accesos-card">
+        <div class="tarjeta-cab">
+          <div>
+            <span class="dashboard-saludo">GESTIÓN</span>
+            <h2>Accesos rápidos</h2>
+          </div>
+        </div>
+        <div class="accesos">
+          <a class="acceso" href="{% url 'catalogo' 'socios' %}" data-modal-open="modal-socios">
+            <strong>Registrar socio</strong><span>Datos personales y contacto</span>
+          </a>
+          <a class="acceso" href="{% url 'catalogo' 'membresias' %}" data-modal-open="modal-membresias">
+            <strong>Nueva membresía</strong><span>Asignar un plan a un socio</span>
+          </a>
+          <a class="acceso" href="{% url 'catalogo' 'inscripciones' %}" data-modal-open="modal-inscripciones">
+            <strong>Inscribir en clase</strong><span>Agregar un socio a una clase</span>
+          </a>
+          <a class="acceso" href="{% url 'catalogo' 'clases' %}" data-modal-open="modal-clases">
+            <strong>Crear clase</strong><span>Definir horario y cupo</span>
+          </a>
+        </div>
+      </article>
+
+      <article class="tarjeta planes-card">
+        <div class="tarjeta-cab">
+          <div>
+            <span class="dashboard-saludo">MEMBRESÍAS</span>
+            <h2>Planes disponibles</h2>
+          </div>
+          <a href="{% url 'catalogo' 'planes' %}">Ver todos</a>
+        </div>
+        <div class="planes-resumen">
+          {% for plan in planes %}
+          <div class="plan-item">
+            <div>
+              <div class="plan-nombre">{{ plan.pla_nombre }}</div>
+              <div class="plan-dias">{{ plan.pla_dias }} días</div>
+            </div>
+            <div class="plan-precio">${{ plan.pla_precio|floatformat:"0g" }}</div>
+          </div>
+          {% empty %}
+          <div class="vacio">Aún no hay planes registrados.</div>
+          {% endfor %}
+        </div>
+      </article>
     </div>
-  </div>
-</section>
+  </section>
+</div>
 
 {% for item in formularios_rapidos %}
   {% include 'modal_formulario.html' with modal_id=item.modal_id titulo_formulario=item.titulo formulario=item.formulario formulario_url=item.modulo origen='inicio' modal_abierto=modal_abierto %}
 {% endfor %}
-
 {% endblock %}

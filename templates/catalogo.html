@@ -43,6 +43,10 @@
         <tr>
           {% for valor in fila.valores %}<td>{{ valor }}</td>{% endfor %}
           <td class="acciones-registro">
+            <a
+              class="btn-editar"
+              href="?editar={{ fila.id }}&amp;q={{ termino|urlencode }}&amp;page={{ pagina.number }}"
+            >Editar</a>
             <form method="post" action="{% url 'eliminar_registro' modulo fila.id %}" data-confirm="{{ fila.confirmacion }}">
               {% csrf_token %}
               <input type="hidden" name="q" value="{{ termino }}">
@@ -76,4 +80,7 @@
 </section>
 
 {% include 'modal_formulario.html' with modal_id=modal_id titulo_formulario=crear_texto formulario=formulario formulario_url=formulario_url origen='catalogo' modal_abierto=modal_abierto %}
+{% if formulario_edicion %}
+  {% include 'modal_formulario.html' with modal_id='modal-editar' titulo_formulario='Editar registro' formulario=formulario_edicion accion_url=url_edicion origen='catalogo' modal_abierto=modal_abierto termino=termino pagina=pagina submit_texto='Guardar cambios' %}
+{% endif %}
 {% endblock %}

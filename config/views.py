@@ -167,6 +167,30 @@ def _contexto_inicio(formulario_activo=None, modal_abierto=None):
     limite = hoy + timedelta(days=DIAS_AVISO)
 
     vigentes = Membresia.objects.filter(mem_inicio__lte=hoy, mem_fin__gte=hoy)
+    meses = []
+    for desplazamiento in range(5, -1, -1):
+        indice_mes = hoy.year * 12 + hoy.month - 1 - desplazamiento
+        anio, mes = divmod(indice_mes, 12)
+        meses.append((anio, mes + 1))
+
+    inicio_periodo = hoy.replace(year=meses[0][0], month=meses[0][1], day=1)
+    altas_por_mes = {
+        (registro['mem_inicio__year'], registro['mem_inicio__month']): registro['total']
+        for registro in Membresia.objects.filter(mem_inicio__gte=inicio_periodo, mem_inicio__lte=hoy)
+        .values('mem_inicio__year', 'mem_inicio__month')
+        .annotate(total=Count('pk'))
+    }
+    nombres_meses = ('Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic')
+    altas_membresias = [
+        {
+            'mes': nombres_meses[mes - 1],
+            'total': altas_por_mes.get((anio, mes), 0),
+        }
+        for anio, mes in meses
+    ]
+    max_altas = max((mes['total'] for mes in altas_membresias), default=0)
+    for mes in altas_membresias:
+        mes['altura'] = round(mes['total'] * 100 / max_altas) if max_altas else 0
 
     proximas = []
     consulta = (
@@ -187,6 +211,11 @@ def _contexto_inicio(formulario_activo=None, modal_abierto=None):
     clases = Clase.objects.select_related('fk_ent').annotate(inscritos=Count('inscripciones'))
     for clase in clases:
         clase.porcentaje = min(100, clase.inscritos * 100 // clase.cla_cupo) if clase.cla_cupo else 0
+    ocupacion_clases = sorted(
+        clases,
+        key=lambda clase: (clase.porcentaje, clase.inscritos),
+        reverse=True,
+    )[:5]
 
     return {
         'hoy': hoy,
@@ -198,6 +227,8 @@ def _contexto_inicio(formulario_activo=None, modal_abierto=None):
         'total_inscripciones': Inscripcion.objects.count(),
         'proximas': proximas,
         'clases': clases,
+        'ocupacion_clases': ocupacion_clases,
+        'altas_membresias': altas_membresias,
         'planes': Plan.objects.all(),
         'formularios_rapidos': _formularios_rapidos(formulario_activo),
         'modal_abierto': modal_abierto,
@@ -210,17 +241,38 @@ def inicio(request):
 
 
 @staff_member_required
-def catalogo(request, modulo, formulario=None, modal_abierto=None):
+def catalogo(
+    request,
+    modulo,
+    formulario=None,
+    modal_abierto=None,
+    formulario_edicion=None,
+    registro_edicion=None,
+    parametros_catalogo=None,
+):
     configuracion = CATALOGOS.get(modulo)
     if configuracion is None:
         raise Http404('No existe esta sección.')
+
+    if registro_edicion is None and request.GET.get('editar'):
+        registro_edicion = get_object_or_404(
+            configuracion['modelo'],
+            pk=request.GET['editar'],
+        )
+    if registro_edicion is not None and formulario_edicion is None:
+        formulario_edicion = FORMULARIOS[modulo](instance=registro_edicion)
+        modal_abierto = 'modal-editar'
 
     consulta = configuracion['modelo'].objects.order_by('pk')
     relaciones = configuracion.get('relaciones', ())
     if relaciones:
         consulta = consulta.select_related(*relaciones)
 
-    termino = request.GET.get('q', '').strip()
+    termino = (
+        parametros_catalogo.get('q', request.GET.get('q', ''))
+        if parametros_catalogo is not None
+        else request.GET.get('q', '')
+    ).strip()
     if termino:
         filtros = Q()
         for campo in configuracion['busqueda']:
@@ -228,7 +280,12 @@ def catalogo(request, modulo, formulario=None, modal_abierto=None):
         consulta = consulta.filter(filtros)
 
     paginador = Paginator(consulta, 15)
-    pagina = paginador.get_page(request.GET.get('page'))
+    numero_pagina = (
+        parametros_catalogo.get('page')
+        if parametros_catalogo is not None
+        else request.GET.get('page')
+    )
+    pagina = paginador.get_page(numero_pagina)
     filas = []
     for registro in pagina:
         valores = []
@@ -263,6 +320,12 @@ def catalogo(request, modulo, formulario=None, modal_abierto=None):
         'modal_id': f'modal-{modulo}',
         'modal_abierto': modal_abierto,
         'modulo': modulo,
+        'formulario_edicion': formulario_edicion,
+        'registro_edicion': registro_edicion,
+        'url_edicion': (
+            reverse('editar_registro', args=[modulo, registro_edicion.pk])
+            if registro_edicion is not None else ''
+        ),
     }
     return render(request, 'catalogo.html', contexto)
 
@@ -292,6 +355,38 @@ def crear_registro(request, modulo):
             ),
         )
     return catalogo(request, modulo, formulario=formulario, modal_abierto=f'modal-{modulo}')
+
+
+@staff_member_required
+@require_POST
+def editar_registro(request, modulo, registro_id):
+    configuracion = CATALOGOS.get(modulo)
+    if configuracion is None:
+        raise Http404('No existe esta sección.')
+
+    registro = get_object_or_404(configuracion['modelo'], pk=registro_id)
+    formulario = FORMULARIOS[modulo](request.POST, instance=registro)
+    if formulario.is_valid():
+        formulario.save()
+        messages.success(request, f'«{registro}» se actualizó correctamente.')
+        url = reverse('catalogo', args=[modulo])
+        parametros = {
+            clave: request.POST[clave]
+            for clave in ('q', 'page')
+            if request.POST.get(clave)
+        }
+        if parametros:
+            url = f'{url}?{urlencode(parametros)}'
+        return redirect(url)
+
+    return catalogo(
+        request,
+        modulo,
+        modal_abierto='modal-editar',
+        formulario_edicion=formulario,
+        registro_edicion=registro,
+        parametros_catalogo=request.POST,
+    )
 
 
 @staff_member_required

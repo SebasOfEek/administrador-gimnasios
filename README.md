@@ -2,8 +2,8 @@
 
 Aplicación web desarrollada con Django para administrar socios, planes,
 membresías, entrenadores, clases e inscripciones. Incluye un panel gráfico
-propio para consultar, buscar, registrar y eliminar datos, además del panel
-administrativo de Django.
+propio para consultar, buscar, registrar, editar y eliminar datos, además del
+panel administrativo de Django.
 
 ## Tecnologías y versiones
 
@@ -31,14 +31,16 @@ python -m pip freeze > requirements.txt
 
 ## Funcionalidades
 
-- Consultar, buscar y paginar los registros de cada entidad.
+- Consultar, buscar y paginar los registros de cada entidad, con tablas que
+  mantienen su encabezado visible y desplazan sus filas dentro de la ventana.
 - Crear registros mediante formularios modales con validación.
+- Editar registros existentes mediante formularios modales con validación.
 - Eliminar registros desde los catálogos con confirmación.
 - Proteger las relaciones que no se deben borrar mientras estén en uso.
 - Eliminar en cascada las inscripciones de una clase y las membresías e
   inscripciones de un socio, según las relaciones del modelo.
 - Consultar en el inicio indicadores, membresías próximas a vencer y cupos de
-  clases.
+  clases, con gráficas de altas mensuales y ocupación por clase.
 - Administrar los registros desde Django Admin, con búsquedas, filtros e
   interfaces inline para membresías e inscripciones.
 
@@ -65,8 +67,8 @@ La relación N:M Socio-Clase usa `ManyToManyField` con `Inscripcion` como
 
 ## Operaciones de datos
 
-Los catálogos gráficos permiten **crear, consultar y eliminar** registros. La
-edición y administración detallada también están disponibles en Django Admin.
+Los catálogos gráficos permiten **crear, consultar, editar y eliminar**
+registros. La administración detallada también está disponible en Django Admin.
 Las relaciones protegidas —por ejemplo, un plan usado por una membresía— no se
 eliminan accidentalmente: el sistema informa que primero se deben quitar o
 reasignar las dependencias.

@@ -1,6 +1,9 @@
+from datetime import timedelta
+
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
+from django.utils import timezone
 
 from clases.models import Clase
 from entrenadores.models import Entrenador
@@ -201,6 +204,56 @@ class CatalogoViewTests(TestCase):
         self.assertContains(response, 'id="modal-membresias"', html=False)
         self.assertContains(response, 'action="/catalogo/socios/crear/"', html=False)
 
+    def test_inicio_muestra_graficas_con_datos_reales(self):
+        socio = Socio.objects.create(
+            soc_documento='DOC-GRAFICA-100',
+            soc_nombre='Socio',
+            soc_apellido='Grafica',
+            soc_telefono='555-0500',
+            soc_correo='grafica@example.com',
+        )
+        plan = Plan.objects.create(pla_nombre='Plan gráfica', pla_precio=100, pla_dias=30)
+        usuario = Usuario.objects.create(
+            usu_usuario='usuario_grafica',
+            usu_nombre='Usuario',
+            usu_apellido='Grafica',
+            usu_correo='usuario.grafica@example.com',
+            usu_rol=Usuario.ROL_RECEPCIONISTA,
+        )
+        Membresia.objects.create(
+            fk_soc=socio,
+            fk_pla=plan,
+            fk_usu=usuario,
+            mem_inicio=timezone.localdate(),
+            mem_fin=timezone.localdate() + timedelta(days=30),
+        )
+        entrenador = Entrenador.objects.create(
+            ent_nombre='Entrenador',
+            ent_apellido='Grafica',
+            ent_telefono='555-0501',
+            ent_especialidad='Fuerza',
+        )
+        clase = Clase.objects.create(
+            fk_ent=entrenador,
+            cla_nombre='Clase gráfica',
+            cla_dia='lunes',
+            cla_hora='10:00',
+            cla_cupo=2,
+        )
+        Inscripcion.objects.create(fk_soc=socio, fk_cla=clase, fk_usu=usuario)
+
+        response = self.client.get(reverse('inicio'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.context['altas_membresias']), 6)
+        mes_actual = response.context['altas_membresias'][-1]
+        self.assertEqual(mes_actual['total'], 1)
+        self.assertEqual(mes_actual['altura'], 100)
+        self.assertEqual(response.context['ocupacion_clases'][0].porcentaje, 50)
+        self.assertContains(response, 'Altas de membresía')
+        self.assertContains(response, 'Ocupación por clase')
+        self.assertContains(response, '1 / 2')
+
     def test_acceso_rapido_del_inicio_guarda_socio_y_regresa_al_inicio(self):
         response = self.client.post(
             reverse('crear_registro', args=['socios']),
@@ -326,3 +379,69 @@ class CatalogoViewTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, '<option value="cliente">Cliente</option>', html=False)
+
+    def test_edita_socio_y_conserva_busqueda_y_pagina(self):
+        socio = Socio.objects.create(
+            soc_documento='DOC-EDITAR-100',
+            soc_nombre='Ana',
+            soc_apellido='Editar',
+            soc_telefono='555-0400',
+            soc_correo='ana.editar@example.com',
+        )
+
+        formulario = self.client.get(
+            reverse('catalogo', args=['socios']),
+            {'editar': socio.pk, 'q': 'Ana', 'page': '1'},
+        )
+        self.assertEqual(formulario.status_code, 200)
+        self.assertEqual(formulario.context['modal_abierto'], 'modal-editar')
+        self.assertEqual(formulario.context['formulario_edicion'].instance, socio)
+        self.assertContains(formulario, 'Guardar cambios')
+
+        response = self.client.post(
+            reverse('editar_registro', args=['socios', socio.pk]),
+            {
+                'origen': 'catalogo',
+                'q': 'Ana',
+                'page': '1',
+                'soc_documento': socio.soc_documento,
+                'soc_nombre': 'Alicia',
+                'soc_apellido': socio.soc_apellido,
+                'soc_telefono': socio.soc_telefono,
+                'soc_correo': socio.soc_correo,
+            },
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, '/catalogo/socios/?q=Ana&page=1')
+        socio.refresh_from_db()
+        self.assertEqual(socio.soc_nombre, 'Alicia')
+
+    def test_edicion_invalida_mantiene_modal_y_muestra_errores(self):
+        socio = Socio.objects.create(
+            soc_documento='DOC-EDITAR-INVALIDO-100',
+            soc_nombre='Ana',
+            soc_apellido='Invalida',
+            soc_telefono='555-0401',
+            soc_correo='ana.invalida@example.com',
+        )
+
+        response = self.client.post(
+            reverse('editar_registro', args=['socios', socio.pk]),
+            {
+                'origen': 'catalogo',
+                'q': 'Ana',
+                'page': '1',
+                'soc_documento': socio.soc_documento,
+                'soc_nombre': '',
+                'soc_apellido': socio.soc_apellido,
+                'soc_telefono': socio.soc_telefono,
+                'soc_correo': socio.soc_correo,
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['modal_abierto'], 'modal-editar')
+        self.assertEqual(response.context['termino'], 'Ana')
+        self.assertEqual(response.context['pagina'].number, 1)
+        self.assertTrue(response.context['formulario_edicion'].errors)
